@@ -1,4 +1,4 @@
-// Error in browser log : .forEach func does not exist on arr
+// POLYFILL : forEach 
 if (!Array.prototype.myForEach) {
 
     Array.prototype.myForEach = function (callback) {    // callblack - basically function provided by user
@@ -8,20 +8,33 @@ if (!Array.prototype.myForEach) {
         }
         }
 }
-
+// POLYFILL : Map 
 if (!Array.prototype.myMap) {
     
     Array.prototype.myMap = function (callback) {
         const orignalArr = this;
         const newArr = [];
         for (let i = 0; i < orignalArr.length; i++){
-            newArr.push(callback(orignalArr[i]));
+            newArr.push(callback(orignalArr[i],i));
         }
         return newArr;
     }
 }
-// 
 
+// POLYFILL : filter
+if (!Array.prototype.myFilter) {
+    
+    Array.prototype.myFilter = function (callback) {
+        const newArr = [];
+        for (let i = 0; i < this.length; i++){
+            let result = callback(this[i]);
+            if (result) {
+                newArr.push(this[i]);
+            }
+        }
+        return newArr;
+    }
+}
 
 const arr = [1, 3, 4, 56, 12];
 
@@ -36,9 +49,8 @@ const ret = arr.forEach(function (value, index) {
     console.log(`Default for Each: Value at index ${index} is ${value}`);
 })
 
-console.log(ret); 
 // forEach - return undefined, takes a function(value,idx) and returns after running it on every element in the array
-
+console.log(ret); 
 
 
 
@@ -53,6 +65,20 @@ console.log("PolyFill Map " + retMap);
 
 let retMapDefault = arr.map((x) => x * 2);
 console.log("Default Map " + retMapDefault);
+
+
+
+// ----polyfill Filter:
+
+let retPolyFilter = arr.myFilter((x) => x % 2 == 0 );
+
+console.log("PolyFill Filter " + retPolyFilter);
+
+
+// --- default Filter:
+
+let retFilterDefault = arr.filter((x) => x % 2 == 0 );
+console.log("Default Filter " + retFilterDefault);
 
 
 

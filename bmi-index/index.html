@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BMI Index Calculator</title>
+    <link rel="stylesheet" href="styles.css"
+</head>
+<body>
+        <form id="formBMI">
+            <p>
+            <label>Age:</label>
+            <input type="number" name="age" id="input-age" placeholder="Please enter your age here">
+            </p>
+            <p>
+            <label>Weight(kgs):</label>
+            <input type="number" name="weight" id="input-weight" placeholder="Please enter your weight in kgs here">
+            <p>
+            <p>
+                <label>Height (metres):</label>
+                <input type="number" name="height" id="input-height" placeholder="Please enter your height in metres here">
+            <p>
+            <button id="calcBtn" type="button">Calculate</button>
+        </form>
+        <div id="resultcontainer">
+            <p id="bmiresult">Your Calculated BMI-Index Is:</p>
+        </div>
+        <script src="index.js"></script>
+</body>
+</html>

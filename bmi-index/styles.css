@@ -1,0 +1,26 @@
+body {
+    text-align: center;
+    background-color: rgb(9, 0, 17);
+}
+
+#formBMI {
+    display: inline-block;
+    margin-top: 5%;
+    padding: 10rem;
+    background-color: rgb(82, 13, 161);
+    color: white;
+    border-radius: 2%;
+    width: 30vh;
+    border: 2px solid rgb(219, 219, 219);
+}
+
+#formBMI input {
+    padding: 2px;
+}
+
+#resultcontainer {
+    color: rgb(208, 255, 0);
+    font-size: 2rem;
+    visibility: hidden;
+
+}

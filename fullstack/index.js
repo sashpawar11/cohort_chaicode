@@ -25,10 +25,14 @@ app.get('/', (req, res) => {
     res.send('Working api call');
 })
 
+db()
+
+app.use('/api/v1/users/', userRoutes)
 
 
 
-app.get('/api/v1/users/', userRoutes)
+
+
 
 app.listen(port, () => {
     console.log('App runnin on port : ', port);

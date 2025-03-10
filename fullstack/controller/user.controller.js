@@ -2,7 +2,6 @@ import User from '../model/User.model.js'
 import crypto from 'crypto'
 import nodemailer from 'nodemailer'
 import dotenv from 'dotenv'
-import bcript from 'bcryptjs'
 
 dotenv.config()
 

@@ -1,11 +1,11 @@
 import mongoose from "mongoose";
-
+import bcrypt  from "bcryptjs";
 
 const userSchema = new mongoose.Schema({
 
     username: String,
     email: String,
-    passsword: String,
+    password: String,
     role: {
         type: String,
         enum: ["user", "admin"],

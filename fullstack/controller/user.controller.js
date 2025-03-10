@@ -2,6 +2,9 @@ import User from '../model/User.model.js'
 import crypto from 'crypto'
 import nodemailer from 'nodemailer'
 import dotenv from 'dotenv'
+import jwt from 'jsonwebtoken'
+import bcrypt  from "bcryptjs";
+
 
 dotenv.config()
 
@@ -128,5 +131,65 @@ const verifyUser = async (req, res) => {
 
     }
 
+const loginUser = async (req, res) => {
+    console.log(req.body);
+    const { email, password } = req.body
 
-export {registerUser, verifyUser} 
+    if (!email || !password) {
+        return res.status(400).json({
+            message : "All fields are required"
+        })
+    }
+
+    try {
+        const userExists = await User.findOne({ email})
+        if (!userExists) {
+            return res.status(400).json({
+                message : "Invalid credentials!"
+            })
+        }
+
+        const isMatch = await bcrypt.compare(password, userExists.password)
+
+        if (!isMatch) {
+            return res.status(400).json({
+                message : "Invalid credentials!"
+            })
+        }
+
+        //signed jwt-token for active usersession on login
+        const jsontoken = jwt.sign({ id: userExists._id, role: userExists.role },
+            'jwtsecret(fethfromenv)',
+            { expiresIn: '24h' }
+        );
+
+        // set jwt token to user cookie using cookie-parser
+        const cookieOptions = {
+            httpOnly: true,          // only accessible to backend
+            secure: true,
+            maxAge: 24 * 60 * 60 * 1000 // 24h
+        }
+
+        res.cookie("jwtToken", jsontoken, cookieOptions);
+
+        return res.status(200).json({
+            message: "Sucess, logged in!",
+            success: true,
+            user: {
+                id: userExists._id,
+                name: userExists.name,
+                role: userExists.role
+            },
+            token : jsontoken
+        })
+
+        
+    } catch (error) {
+        return res.status(401).json({
+            message: "Login Failed",
+            error: error.toString()
+        })
+    }
+    
+}
+export {registerUser, verifyUser, loginUser} 

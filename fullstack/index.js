@@ -3,11 +3,14 @@ import dotenv from 'dotenv';
 import cors from 'cors'
 import db from './utils/db.js'
 import userRoutes from './routes/user.routes.js'
+import cookieParser from 'cookie-parser';
+
 
 dotenv.config()
 
 const port = process.env.PORT || 4000;
 const app = express();
+
 
 app.use(cors({
     origin: process.env.BASE_URL,
@@ -18,7 +21,8 @@ app.use(cors({
 
 
 app.use(express.json())
-app.use(express.urlencoded({extended: true}))
+app.use(express.urlencoded({ extended: true }))
+app.use(cookieParser());
 db();
 
 app.get('/', (req, res) => {

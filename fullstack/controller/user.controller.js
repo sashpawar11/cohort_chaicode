@@ -1,10 +1,9 @@
 import User from '../model/User.model.js'
 import crypto from 'crypto'
-import nodemailer from 'nodemailer'
 import dotenv from 'dotenv'
 import jwt from 'jsonwebtoken'
 import bcrypt  from "bcryptjs";
-
+import { sendEmailUtil } from '../utils/mailer.js'
 
 dotenv.config()
 
@@ -58,30 +57,34 @@ const registerUser = async (req, res) => {
 
 
           
-        // send token as email to user
-        var transport = nodemailer.createTransport({
-            host: process.env.MAILTRAP_URL,
-            port: process.env.MAILTRAP_PORT,
-            auth: {
-              user: process.env.MAILTRAP_AUTH_USER,
-              pass: process.env.MAILTRAP_AUTH_PASS
-            }
-        });
+        // // send token as email to user
+        // var transport = nodemailer.createTransport({
+        //     host: process.env.MAILTRAP_URL,
+        //     port: process.env.MAILTRAP_PORT,
+        //     auth: {
+        //       user: process.env.MAILTRAP_AUTH_USER,
+        //       pass: process.env.MAILTRAP_AUTH_PASS
+        //     }
+        // });
         
-        const emailOptions = {
-            from: process.env.MAILTRAP_SENDER_EMAIL, // sender address
-            to: user.email, // list of receivers
-            subject: "Verify your email address!", // Subject line
-            text: `Please click on the following link : 
-                ${process.env.BASE_URL}/api/v1/users/verify/${token}` // plain text body
-            // html: "<b>Hello world?</b>", // html body
-          }
+        // const emailOptions = {
+        //     from: process.env.MAILTRAP_SENDER_EMAIL, // sender address
+        //     to: user.email, // list of receivers
+        //     subject: "Verify your email address!", // Subject line
+        //     text: `Please click on the following link : 
+        //         ${process.env.BASE_URL}/api/v1/users/verify/${token}` // plain text body
+        //     // html: "<b>Hello world?</b>", // html body
+        //   }
 
-        const info = await transport.sendMail(emailOptions);
+        // const info = await transport.sendMail(emailOptions);
         
-        console.log("Message sent: %s", info.messageId);
 
-        res.status(201).json({
+        // console.log("Message sent: %s", info.messageId);
+
+        sendEmailUtil(user.email,"Verify your email address!",`Please click on the following link : 
+                ${process.env.BASE_URL}/api/v1/users/verify/${token}`)
+      
+        return res.status(201).json({
             message : "User registered successfully",
             success : true,
         })
@@ -149,7 +152,7 @@ const loginUser = async (req, res) => {
             })
         }
 
-        const isMatch = await bcrypt.compare(password, userExists.password)
+        const isMatch = bcrypt.compare(password, userExists.password)
 
         if (!isMatch) {
             return res.status(400).json({
@@ -192,4 +195,91 @@ const loginUser = async (req, res) => {
     }
     
 }
-export {registerUser, verifyUser, loginUser} 
+
+
+const forgotPassword = async (req, res) => {
+    
+    const { email } = req.body
+    if (!email) {
+        return res.status(400).json({
+            message: "Email address is required!"
+        })
+    }
+
+    const forgotUser = await User.findOne({ email });
+    if (!forgotUser) {
+        return res.status(400).json({
+            message: "User with the given email address not found!"
+        })
+    }
+
+    try {
+
+        // create a random password token
+        const token = crypto.randomBytes(32).toString("hex")
+       
+        // save token in database
+        forgotUser.password = token
+
+        await forgotUser.save()
+        
+        sendEmailUtil(forgotUser.email, "Forgot passoword request succesfull!", `Your password has been changed per your forgot password request- Please login with this new passoword and reset on login - ${token}`)
+        
+        return res.status(200).json({
+            message: "Forgot password reset succesfful!",
+            success: true,
+            email: forgotUser.email
+        })
+    } catch (error) {
+        return res.status(400).json({
+            message: "Forgot password reset error!",
+            success: false,
+            error: error
+        })
+    }
+
+}
+
+const resetPassword = async (req, res) => {
+    
+    const { email,password } = req.body
+    if (!password) {
+        return res.status(400).json({
+            message: "All fields are required"
+        })
+    }
+
+    const findUser = await User.findOne({ email });
+    if (!findUser) {
+        return res.status(400).json({
+            message: "User with the given email address not found!"
+        })
+    }
+
+    try {
+
+        
+        findUser.password = password
+        await findUser.save()
+        
+        
+        sendEmailUtil(findUser.email, "Your password has been reset!", `Your passowrd has been successfully reset to a new passowrd, for your username - ${findUser.username}`)
+
+        return res.status(200).json({
+            message: "Reset password succesfful!",
+            success: true,
+            email: findUser.email
+        })
+
+        
+    } catch (error) {
+        return res.status(400).json({
+            message: "Reset password reset error!",
+            success: false,
+            error: error.toString()
+        })
+    }
+
+
+}
+export {registerUser, verifyUser, loginUser, forgotPassword, resetPassword} 

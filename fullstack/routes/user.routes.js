@@ -5,7 +5,10 @@ import {
   loginUser,
   forgotPassword,
   resetPassword,
+  logoutUser,
+  getMe,
 } from "../controller/user.controller.js";
+import { isLoggedIn } from "../middleware/auth.middleware.js";
 
 const router = express.Router();
 router.post("/register", registerUser);
@@ -13,5 +16,7 @@ router.get("/verify/:token", verifyUser); // params are passed with :<paramname>
 router.post("/login", loginUser);
 router.post("/forgotpassword", forgotPassword);
 router.put("/resetpassword", resetPassword);
+router.post("/logoutUser",isLoggedIn, logoutUser);
+router.get("/me", isLoggedIn, getMe);    // isLoggedIn ( Middleware Function)
 
 export default router;

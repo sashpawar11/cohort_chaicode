@@ -156,7 +156,7 @@ const loginUser = async (req, res) => {
     //signed jwt-token for active usersession on login
     const jsontoken = jwt.sign(
       { id: userExists._id, role: userExists.role },
-      "jwtsecret(fethfromenv)",
+      process.env.JWT_SECRET,
       { expiresIn: "24h" },
     );
 
@@ -187,6 +187,52 @@ const loginUser = async (req, res) => {
   }
 };
 
+const getMe = async (req, res) => {
+  try {
+
+    console.log('reached profile level');
+    console.log(req.user);
+
+    const userFound = await User.findById(req.user.id).select('-password'); // find user by and return everything except password
+    console.log('user in getme: ', userFound);
+    if (!userFound) {
+      return res.status(400).json({
+        message: "User not found!",
+        success : false
+      })
+    }
+
+    res.status(200).json({
+      message: "User Found!",
+      user : userFound
+    })
+    
+  } catch (error) {
+    
+  }
+}
+
+
+const logoutUser = async (req, res) => {
+  try {
+
+    res.cookie('jwtToken', '', {
+      expiresIn: new Date(0)
+    })
+    //const jwtToken = req.cookie.title = 'jwtToken';
+    res.status(200).json({
+      message: "Logged out succesfully",
+      success: true,
+      })
+  }
+     catch (error) {
+    res.status(400).json({
+      message: "error occured in logout",
+      success: false,
+      error: error
+      })
+  }
+}
 const forgotPassword = async (req, res) => {
   const { email } = req.body;
   if (!email) {
@@ -246,6 +292,15 @@ const resetPassword = async (req, res) => {
     });
   }
 
+  // **correct approach refactor code**
+  // collect token from params
+  // password from req.body
+  // find user using
+  //  1 resetpasswordtoken from params,
+  //  2 resetPasswordExpires : {$gt : Date.now()}
+  //set passsowrd in userfound
+  // reset resetPasswordToken and resetPasswordExpires field
+
   try {
     findUser.password = password;
     await findUser.save();
@@ -269,4 +324,4 @@ const resetPassword = async (req, res) => {
     });
   }
 };
-export { registerUser, verifyUser, loginUser, forgotPassword, resetPassword };
+export { registerUser, verifyUser, loginUser, forgotPassword, resetPassword, logoutUser, getMe };

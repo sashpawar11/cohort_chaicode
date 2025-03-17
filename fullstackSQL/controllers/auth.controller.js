@@ -72,7 +72,7 @@ const loginUser = async (req, res) => {
             success : false
         })
     }
-    
+
     try {
     
         const findUser = user.findUnique({ where: email });
@@ -102,7 +102,7 @@ const loginUser = async (req, res) => {
       
         res.cookie("jwtToken", jwtToken, cookieOptions);
         
-        return res.status(200).json({
+        return res.status(201).json({
             message: "Sucess, logged in!",
             success: true,
             user: {

@@ -169,7 +169,7 @@ const loginUser = async (req, res) => {
 
     res.cookie("jwtToken", jsontoken, cookieOptions);
 
-    return res.status(200).json({
+    return res.status(201).json({
       message: "Sucess, logged in!",
       success: true,
       user: {

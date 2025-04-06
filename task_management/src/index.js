@@ -1,41 +1,17 @@
-import dotenv from "dotenv";
-import cors from "cors";
-import db from "./utils/db.js";
-import CookieParser from "cookieparser";
 import app from "./app.js";
+import dotenv from "dotenv";
+import connectDB from "./db/db.js";
 
 dotenv.config({
   path: "./.env",
 });
+const PORT = process.env.PORT || 8000;
 
-const port = process.env.PORT || 4000;
-
-app.use(
-  cors({
-    origin: process.env.BASE_URL,
-    credentials: true,
-    methods: ["GET", "POST", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Cotent-Type", "Authorization"],
-  }),
-);
-
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(CookieParser());
-
-app.get("/", (req, res) => {
-  res.send("Working api call!");
-});
-
-db()
+connectDB()
   .then(() => {
-    app.listen(port, () => {
-      console.log("App running on port: ", port);
-    });
+    app.listen(PORT, () => console.log(`Server is running on port: ${PORT}`));
   })
-  .catch((error) => {
-    console.error("Mongo db conn Error ", error);
+  .catch((err) => {
+    console.error("Mongodb connection error", err);
     process.exit(1);
   });
-
-app.use("/api/v1/users/", userRoutes);
